@@ -1,0 +1,20 @@
+{% for post in posts %}
+<div class="col-md-12 content">
+  <div class="article">
+    <div class="art-title">
+      <span class="title-text">{{post.title}}</span><span class="by-user"> by: {{post.author}}</span>
+    </div>
+    <div class="art-body">
+      {{post.text}}
+    </div>
+    <div class="art-footer col-xs-6">
+      {{post.date}}, {{post.category}}.
+    </div>
+    <div class="art-footer col-xs-6">
+      {% if post.author == user.username %}
+      <a href="/post?id={{post.key()}}">Edit Post</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}

@@ -1,0 +1,99 @@
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+}
+
+body {
+  border-top: 10px solid #fff;
+  font-family: "Raleway", sans-serif;
+}
+
+h1 {
+  margin: 0 0 0 0;
+}
+
+.container {
+  background-color: #ccc;
+}
+
+.fill {
+  min-width: 100%;
+}
+
+.nopadding {
+  padding: 0 0 0 0;
+}
+.darkborder {
+  border: solid 1px #000;
+}
+
+.start-hidden {
+  display: none;
+}
+
+.article {
+  margin: 10px 0 0 0;
+}
+
+.art-title {
+  border: solid 2px #666;
+}
+
+.art-body {
+  border: 0;
+  border-left: dashed 2px #666;
+  border-right: dashed 2px #666;
+  padding: 5px;
+}
+
+.art-footer {
+  border: solid 2px #666;
+}
+
+.title-text {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+@media screen and (max-width:600px) {
+
+  .header-words h1 {
+    font-size: 25px;
+    font-style: bold;
+  }
+
+  .header-words {
+    font-size: 10px;
+    padding: 0 1px 0 0;
+
+  }
+
+}
+
+@media screen and (max-width:450px) {
+
+  .header-words {
+      display:none;
+  }
+  .start-hidden {
+    padding: 0 1px 0 0;
+    display: inline;
+  }
+  .start-hidden h1 {
+    padding: 0 0 0 0;
+    font-size: 25px;
+    font-style: bold;
+  }
+
+  /* Start CSS for forms */
+
+  .textinput {
+    background-color: #666;
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--Test-->
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <title>Learn Something Daily</title>
+  </head>
+  <body>
+    <div class="container">
+      <header id="header">
+        <div class="row darkborder">
+          <div class="nopadding col-xs-4 toppic">
+            <a href="/"><img src="http://placekitten.com/300/125"></a>
+          </div>
+          <div class="col-xs-8 text-right header-words">
+            <h1>Learn Something Daily</h1>
+            Track & Share what you have learned each day.
+          </div>
+          <div class="col-xs-8 text-right start-hidden">
+            <h1>LSD</h1>
+            Learn Something Daily
+          </div>
+        </div>
+        <div class="row darksides">
+          <div class="col-md-6 hidden-sm hidden-xs nopadding">.</div>
+          <div class="col-xs-12 col-md-6 pull-right nopadding">
+            {% if user.username %}
+            Welcome {{user.username}}! <a href="/post">Post Article</a> || <a href="/logout">Logout.</a>
+            {% else %}
+            <script>
+            $('input').on('click focusin', function() {
+                this.value = '';
+            });
+            </script>
+            <form method="post" action="/login">
+              <input type="text" name="name" onfocus="if(this.value == 'username') { this.value = ''; }" value="username" class="col-xs-4">
+              <input type="password" onfocus="if(this.value == 'password') { this.value = ''; }" name="password" value="password" class="col-xs-4">
+              <input type="submit">
+              <a href="/create">Register!</a>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+      <div class="row">
+        {{articles | safe}}
+    </div>
+  </body>
+</html>
