@@ -1,4 +1,8 @@
 {% extends 'main.html' %}
 {% block content %}
+{% if plog %}
+Please Login first.
+{% else %}
 Invalid Login, Please Try Again.
+{% endif %}
 {% endblock %}

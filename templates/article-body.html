@@ -28,7 +28,11 @@
       <div class="col-xs-12">
         {% for comment in comments[count] %}
           {{comment.text}}<br>
-          <b>Comment by:</b>{{comment.author}} on: {{comment.date}} Likes: {{comment.likes}} <a href="/like?comment=yes&id={{comment.key()}}">Like!</a>
+          <b>Comment by:</b>{{comment.author}} on: {{comment.date}} Likes: {{comment.likes}}
+          <a href="/like?comment=yes&id={{comment.key()}}">Like!</a>
+          {% if user.username == comment.author %}
+          <a href="/comment?cid={{comment.key()}}&post=delete">Delete</a> || <a href="/comment?cid={{comment.key()}}">Edit</a>
+          {% endif %}
           <hr>
 
         {% endfor %}

@@ -4,6 +4,7 @@
   <form method="post">
     <input type="hidden" name="edit" value="{{edit}}">
     <input type="hidden" name="articleid" value="{{articleid}}">
+    <input type="hidden" name="cid" value="{{commentid}}"
     <div class="row">
       <div class="col-xs-12">
           <h1>{{title}}</h1>
@@ -14,8 +15,10 @@
     <b>Comment:</b><br>
     <div class="col-xs-12">
     <textarea name="post" class="col-xs-12">{{comment}}</textarea><br>
-  </div>
-    <input type="submit" class="submit" value="Comment!"><a href="/">Cancel</a>
+    </div>
+    <div class = "col-xs-12">
+      <input type="submit" class="submit" value="Comment!"><a href="/">Cancel</a>
+    </div>
   </form>
 </div>
 {% endblock %}

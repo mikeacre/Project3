@@ -79,7 +79,7 @@ class Handler(webapp2.RequestHandler):
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
 
-    def which_nav(self):
+    def isloggedin(self):
         '''checks if user is logged in'''
         if self.read_secure_cookie('user_id'):
             return True
@@ -92,12 +92,14 @@ class MainPage(Handler):
     def get(self):
         posts = Article.all().order('-date')
         comments = []
-
         for post in posts:
             postid = post.key()
-            comments.append(Comments.gql("WHERE articlekey = '%s'" % (postid)))
+            comments.append(Comments.gql("WHERE articlekey='%s'" % (postid)))
+        self.render("article-body.html",
+                    user=self.user,
+                    posts=posts,
+                    comments=comments)
 
-        self.render("article-body.html", user=self.user, posts=posts, comments=comments)
 
 class LogIn(Handler):
 
@@ -138,8 +140,11 @@ class CreateUser(Handler):
             self.login(newuser)
             self.redirect('/')
         else:
-            self.render("new_user.html", user=self.user,
-                        username=username, email=email, error=error)
+            self.render("new_user.html",
+                        user=self.user,
+                        username=username,
+                        email=email,
+                        error=error)
 
     def get(self):
         self.render("new_user.html", user=self.user)
@@ -148,70 +153,94 @@ class CreateUser(Handler):
 class CreateArticle(Handler):
 
     def post(self):
-        title = self.request.get("title")
-        category = self.request.get("category")
-        post = self.request.get("post")
-        error = ""
-        ##Check for error
-        if error == "":
-            if self.request.get("edit") != "":
-                editarticle = Article.get(self.request.get("edit"))
-                editarticle.title = title
-                editarticle.category = category
-                editarticle.text = post
-                editarticle.put()
+        if self.isloggedin():
+            title = self.request.get("title")
+            category = self.request.get("category")
+            post = self.request.get("post")
+            error = ""
+            if error == "":
+                if self.request.get("edit") != "":
+                    editarticle = Article.get(self.request.get("edit"))
+                    editarticle.title = title
+                    editarticle.category = category
+                    editarticle.text = post
+                    if editarticle.author == self.user.username:
+                        editarticle.put()
+                    else:
+                        self.render("invalid.html", plog='y', user=self.user)
+                else:
+                    thisarticle = Article(title=title,
+                                          text=post,
+                                          author=self.user.username,
+                                          category=category)
+                    thisarticle.put()
+                self.redirect('/')
             else:
-                thisarticle = Article(title=title, text=post,
-                                      author=self.user.username,
-                                      category=category)
-                thisarticle.put()
-            self.redirect('/')
+                self.render("add_new.html",
+                            title=title,
+                            category=category,
+                            post=post,
+                            user=self.user,
+                            error=error)
         else:
-            self.render("add_new.html", title=title, category=category,
-                        post=post, user=self.user, error=error)
+            self.render("invalid.html", plog='y', user=self.user)
 
     def get(self):
-        if self.request.get("id"):
-            post = Article.get(self.request.get("id"))
-            self.render("add_new.html", user=self.user,
-                        title=post.title,category=post.category,
-                        post=post.text, edit=self.request.get("id"))
+        if self.isloggedin():
+            if self.request.get("id"):
+                post = Article.get(self.request.get("id"))
+                self.render("add_new.html",
+                            user=self.user,
+                            title=post.title,
+                            category=post.category,
+                            post=post.text,
+                            edit=self.request.get("id"))
+            else:
+                self.render("add_new.html", user=self.user)
         else:
-            self.render("add_new.html", user=self.user)
+            self.render("invalid.html", plog='y', user=self.user)
+
 
 class Delete(Handler):
 
     def get(self):
-        if self.request.get("id"):
-            thisarticle = Article.get(self.request.get("id"))
-            thisarticle.delete()
+        if self.isloggedin():
+            if self.request.get("id"):
+                thisarticle = Article.get(self.request.get("id"))
+                if thisarticle.author == self.user.username:
+                    thisarticle.delete()
         self.redirect('/')
 
 
 class Likes(Handler):
 
     def get(self):
-
         if self.request.get("comment"):
-            q = "WHERE username = '%s' AND commentid = '%s'" % (self.user.username, self.request.get("id"))
+            q = "WHERE username='%s' AND commentid='%s'"
+            "" % (self.user.username, self.request.get("id"))
             if CommentLike.gql(q).count() == 0:
-                newlike = CommentLike(username=self.user.username,
-                                      commentid=self.request.get("id"))
-                newlike.put()
-                comment = Comments.get(self.request.get("id"))
-                comment.likes = comment.likes+1
-                comment.put();
+                commentauthor = Comments.get(self.request.get("id")).author
+                if self.user.username != commentauthor:
+                    newlike = CommentLike(username=self.user.username,
+                                          commentid=self.request.get("id"))
+                    newlike.put()
+                    comment = Comments.get(self.request.get("id"))
+                    comment.likes = comment.likes+1
+                    comment.put()
         else:
-            q = "WHERE username = '%s' AND articleid = '%s'" % (self.user.username, self.request.get("id"))
+            q = "WHERE username='%s' AND articleid='%s'"
+            "" % (self.user.username, self.request.get("id"))
             if Like.gql(q).count() == 0:
-                newlike = Like(username=self.user.username,
-                               articleid=self.request.get("id"))
-                newlike.put()
-                likes = Like.gql("WHERE articleid = '%s'" % self.request.get("id")).count();
-                article = Article.get(self.request.get("id"))
-                article.likes = likes
-                article.put()
-
+                articleauthor = Article.get(self.request.get("id")).author
+                if self.user.username != articleauthor:
+                    newlike = Like(username=self.user.username,
+                                   articleid=self.request.get("id"))
+                    newlike.put()
+                    likes = Like.gql("WHERE articleid='%s'"
+                                     "" % self.request.get("id")).count()
+                    article = Article.get(self.request.get("id"))
+                    article.likes = likes
+                    article.put()
         self.redirect('/')
 
 
@@ -219,41 +248,71 @@ class Comment(Handler):
     '''create comment'''
 
     def get(self):
-        articleid = self.request.get("id")
-        if articleid:
-            post = Article.get(articleid)
-            self.render("comment.html",
-                        user=self.user,
-                        title=post.title,
-                        post=post.text,
-                        articleid=articleid)
-    def post(self):
-        articleid = self.request.get("articleid")
-        comment = self.request.get("post")
-        error = ""
-        ##check for errors
-        if error == "":
-            if self.request.get("edit") != "":
-                ##Edit Article
-                error = ""
+        if self.isloggedin():
+            articleid = self.request.get("id")
+            commentid = self.request.get("cid")
+            post = self.request.get("post")
+            if commentid:
+                if post == "delete":
+                    comment = Comments.get(commentid)
+                    if comment.author == self.user.username:
+                        comment.delete()
+                    self.redirect('/')
+                else:
+                    comment = Comments.get(commentid)
+                    post = Article.get(comment.articlekey)
+                    self.render("comment.html",
+                                user=self.user,
+                                title=post.title,
+                                post=post.text,
+                                articleid=post.key(),
+                                comment=comment.text,
+                                commentid=commentid)
             else:
-                thiscomment = Comments(articlekey = articleid,
-                                      text = comment,
-                                      author = self.user.username)
-                thiscomment.put()
-                self.redirect('/')
+                post = Article.get(articleid)
+                self.render("comment.html",
+                            user=self.user,
+                            title=post.title,
+                            post=post.text,
+                            articleid=articleid)
         else:
-            self.render("comment.html", title = title,
-                                        post = post,
-                                        user = self.user,
-                                        error = error,
-                                        edit = articleid)
+            self.redirect('/')
+
+    def post(self):
+        if self.isloggedin():
+            articleid = self.request.get("articleid")
+            comment = self.request.get("post")
+            commentid = self.request.get("cid")
+            error = ""
+            if error == "":
+                if commentid:
+                    thiscomment = Comments.get(commentid)
+                    if self.user.username == thiscomment.author:
+                        thiscomment.text = comment
+                        thiscomment.put()
+                else:
+                    thiscomment = Comments(articlekey=articleid,
+                                           text=comment,
+                                           author=self.user.username)
+                    thiscomment.put()
+                self.redirect('/')
+            else:
+                self.render("comment.html",
+                            title=title,
+                            post=post,
+                            user=self.user,
+                            error=error,
+                            edit=articleid)
+        else:
+            self.redirect('/')
+
 
 class Logout(Handler):
 
     def get(self):
         self.logout()
         self.redirect('/')
+
 
 class Comments(db.Model):
     articlekey = db.StringProperty(required=True)
@@ -275,6 +334,7 @@ class Article(db.Model):
 class Like(db.Model):
     articleid = db.StringProperty(required=True)
     username = db.StringProperty(required=True)
+
 
 class CommentLike(db.Model):
     commentid = db.StringProperty(required=True)
