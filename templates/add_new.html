@@ -1,3 +1,5 @@
+{% extends 'main.html' %}
+{% block content %}
 <div class="col-xs-12 col-md-6 center">
   <form method="post">
     <input type="hidden" name="edit" value="{{edit}}">
@@ -24,3 +26,4 @@
     <input type="submit" class="submit" value="Post!"><a href="/">Cancel</a>
   </form>
 </div>
+{% endblock %}

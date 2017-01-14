@@ -1,22 +1,43 @@
+
+{% extends 'main.html' %}
+{% block content %}
+{% set count = 0 %}
 {% for post in posts %}
-<div class="col-md-12 content">
-  <div class="article">
-    <div class="art-title">
-      <span class="title-text">{{post.title}}</span><span class="by-user"> by: {{post.author}}</span>
-    </div>
-    <div class="art-body">
-      {{post.text}}
-    </div>
-    <div class="art-footer col-xs-6">
-      {{post.date}}, {{post.category}}.
-    </div>
-    <div class="art-footer col-xs-6">
-      {% if post.author == user.username %}
-      <a href="/post?id={{post.key()}}">Edit Post</a>
-      {% endif %}
+  <div class="col-md-12 content">
+    <div class="article">
+      <div class="art-title">
+        <span class="title-text">{{post.title}}</span><span class="by-user"> by: {{post.author}}</span>
+      </div>
+      <div class="art-body">
+        {{post.text}}
+      </div>
+      <div class="art-footer col-xs-6">
+        {{post.date}}, {{post.category}}. <B>Likes</b>: {{post.likes}}
+      </div>
+      <div class="art-footer col-xs-6">
+        {% if post.author == user.username %}
+        <a href="/post?id={{post.key()}}">Edit Post</a> |
+        <a href="/delete?id={{post.key()}}">Delete Post</a>
+        {% elif user.username %}
+        <a href="/like?id={{post.key()}}">Like Post</a>
+        {% endif %}
+        {% if user.username %}
+        | <a href="/comment?id={{post.key()}}">Comment</a>
+        {% endif %}
+      </div>
+      <div class="col-xs-12">
+        {% for comment in comments[count] %}
+          {{comment.text}}<br>
+          <b>Comment by:</b>{{comment.author}} on: {{comment.date}} Likes: {{comment.likes}} <a href="/like?comment=yes&id={{comment.key()}}">Like!</a>
+          <hr>
+
+        {% endfor %}
+
+      </div>
     </div>
   </div>
-</div>
-</div>
-<div class="row">
+  </div>
+  <div class="row">
+  {% set count = count + 1 %}
 {% endfor %}
+{% endblock %}

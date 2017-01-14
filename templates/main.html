@@ -41,7 +41,7 @@
             <form method="post" action="/login">
               <input type="text" name="name" onfocus="if(this.value == 'username') { this.value = ''; }" value="username" class="col-xs-4">
               <input type="password" onfocus="if(this.value == 'password') { this.value = ''; }" name="password" value="password" class="col-xs-4">
-              <input type="submit">
+              <input type="submit" value="Log-In!">
               <a href="/create">Register!</a>
             </form>
             {% endif %}
@@ -49,7 +49,7 @@
         </div>
       </header>
       <div class="row">
-        {{articles | safe}}
+        {% block content %}{% endblock %}
     </div>
   </body>
 </html>
