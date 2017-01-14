@@ -216,8 +216,8 @@ class Likes(Handler):
 
     def get(self):
         if self.request.get("comment"):
-            q = "WHERE username='%s' AND commentid='%s'"
-            "" % (self.user.username, self.request.get("id"))
+            q = ("WHERE username='%s' AND commentid='%s'"
+                 % (self.user.username, self.request.get("id")))
             if CommentLike.gql(q).count() == 0:
                 commentauthor = Comments.get(self.request.get("id")).author
                 if self.user.username != commentauthor:
@@ -228,8 +228,8 @@ class Likes(Handler):
                     comment.likes = comment.likes+1
                     comment.put()
         else:
-            q = "WHERE username='%s' AND articleid='%s'"
-            "" % (self.user.username, self.request.get("id"))
+            q = ("WHERE username='%s' AND articleid='%s'"
+                 % (self.user.username, self.request.get("id")))
             if Like.gql(q).count() == 0:
                 articleauthor = Article.get(self.request.get("id")).author
                 if self.user.username != articleauthor:
@@ -237,7 +237,7 @@ class Likes(Handler):
                                    articleid=self.request.get("id"))
                     newlike.put()
                     likes = Like.gql("WHERE articleid='%s'"
-                                     "" % self.request.get("id")).count()
+                                     % self.request.get("id")).count()
                     article = Article.get(self.request.get("id"))
                     article.likes = likes
                     article.put()
